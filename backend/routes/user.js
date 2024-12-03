@@ -10,7 +10,7 @@ const signupSchema = zod.object({
     password: zod.string()
 })
 
-router.post("/signup", (req,res) => {
+router.post("/signup", async (req,res) => {
     const body = req.body;
     const {success} = signupSchema.safeParse(req.body);
     if(!success){
@@ -19,7 +19,24 @@ router.post("/signup", (req,res) => {
         })
     }
 
-    const user = User.findOne()
+    const user = User.findOne({
+        username: body.username
+    })
+
+    if(user._id) {
+        return res.json({
+            messsage: "Email already taken / Incorrect inputs"
+        })
+    }
+
+    const dbUser = await User.create(body);
+    const token = jwt.sign({
+        userId: dbUser._id
+    }, JWT_SECRET)
+    res.json({
+        message: "User created successfully",
+        token: token
+    })
 })
 
 module.exports = router;
