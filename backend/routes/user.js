@@ -1,10 +1,11 @@
 const express = require("express");
 const zod = require("zod");
 const { User } = require("../db");
+const JWT_SECRET = require("../config")
 const router = express.Router();
 
 const signupSchema = zod.object({
-    username: zod.string(),
+    username: zod.string().email(),
     password: zod.string(),
     firstName: zod.string(),
     password: zod.string()
@@ -14,7 +15,7 @@ router.post("/signup", async (req,res) => {
     const body = req.body;
     const {success} = signupSchema.safeParse(req.body);
     if(!success){
-        return res.json({
+        return res.status(411).json({
             message: "Email already taken / Incorrect inputs"
         })
     }
@@ -24,7 +25,7 @@ router.post("/signup", async (req,res) => {
     })
 
     if(user._id) {
-        return res.json({
+        return res.status(411).json({
             messsage: "Email already taken / Incorrect inputs"
         })
     }
