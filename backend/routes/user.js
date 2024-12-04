@@ -1,8 +1,10 @@
 const express = require("express");
-const zod = require("zod");
-const { User } = require("../db");
-const JWT_SECRET = require("../config")
 const router = express.Router();
+const zod = require("zod");
+const jwt = require("jsonwebtoken");
+const { User } = require("../db");
+const { JWT_SECRET } = require("../config")
+const { authMiddleware } = require("../middleware");
 
 const signupSchema = zod.object({
     username: zod.string().email(),
@@ -20,7 +22,7 @@ router.post("/signup", async (req,res) => {
         })
     }
 
-    const user = User.findOne({
+    const user = await User.findOne({
         username: body.username
     })
 
